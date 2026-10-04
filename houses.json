@@ -1,0 +1,10 @@
+{
+  "label": "After Day 1",
+  "durationSeconds": 10,
+  "houses": [
+    { "name": "House One", "color": "#E79CB5", "points": 120 },
+    { "name": "House Two", "color": "#46CFE0", "points": 95 },
+    { "name": "House Three", "color": "#F4F1EA", "points": 140 },
+    { "name": "House Four", "color": "#D9453B", "points": 80 }
+  ]
+}

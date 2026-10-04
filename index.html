@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Cup</title>
+<!-- PLACEHOLDER animation. Eric's version replaces this file.
+     Contract (see CLAUDE.md): read totals from houses.json, fixed length, no interaction, self-contained assets. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Creepster&display=block" rel="stylesheet">
+<style>
+  :root { --black:#1A1A1A; --pink:#E79CB5; --cyan:#46CFE0; --bone:#F4F1EA; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { width:1920px; height:1080px; overflow:hidden; background:var(--black); color:var(--bone); }
+  body { font-family:Anton, Arial, sans-serif; }
+  header { position:absolute; top:70px; width:100%; text-align:center; animation:drop .9s cubic-bezier(.2,1.4,.4,1) both; }
+  h1 { font-family:Creepster, serif; font-weight:400; font-size:150px; letter-spacing:6px; color:var(--pink); line-height:1; }
+  .label { font-size:44px; letter-spacing:8px; text-transform:uppercase; color:var(--cyan); margin-top:10px; }
+  @keyframes drop { from { transform:translateY(-260px); opacity:0 } to { transform:none; opacity:1 } }
+  #chart { position:absolute; left:200px; right:200px; bottom:110px; height:560px; display:flex; gap:80px; align-items:flex-end; }
+  .col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .pts { font-size:88px; line-height:1; margin-bottom:16px; font-variant-numeric:tabular-nums; }
+  .bar { width:100%; border:6px solid var(--bone); border-bottom:none; }
+  .name { font-family:Creepster, serif; font-size:60px; margin-top:22px; text-align:center; line-height:1; }
+  .crown { font-family:Creepster, serif; font-size:56px; color:var(--pink); opacity:0; height:64px; transition:none; }
+  .floor { position:absolute; left:160px; right:160px; bottom:196px; border-top:6px solid var(--bone); }
+</style>
+</head>
+<body>
+<header><h1>House Cup</h1><div class="label" id="label"></div></header>
+<div id="chart"></div>
+<script>
+  // Timeline (ms): bars grow 1200-5200, leader crowned at 5800, hold to the end.
+  const GROW_START = 1200, GROW_END = 5200, CROWN_AT = 5800;
+  const ease = t => 1 - Math.pow(1 - t, 3);
+
+  fetch('houses.json', { cache: 'no-store' }).then(r => r.json()).then(data => {
+    document.getElementById('label').textContent = data.label || '';
+    const max = Math.max(...data.houses.map(h => h.points), 1);
+    const leader = Math.max(...data.houses.map(h => h.points));
+    const chart = document.getElementById('chart');
+    const cols = data.houses.map(h => {
+      const col = document.createElement('div');
+      col.className = 'col';
+      col.innerHTML = `<div class="crown">Leader</div><div class="pts" style="color:${h.color}">0</div>
+        <div class="bar" style="background:${h.color};height:0"></div><div class="name" style="color:${h.color}">${h.name}</div>`;
+      chart.appendChild(col);
+      return { h, col, pts: col.querySelector('.pts'), bar: col.querySelector('.bar'), crown: col.querySelector('.crown') };
+    });
+    const t0 = performance.now();
+    function frame(now) {
+      const t = now - t0;
+      const p = ease(Math.min(Math.max((t - GROW_START) / (GROW_END - GROW_START), 0), 1));
+      for (const c of cols) {
+        c.pts.textContent = Math.round(c.h.points * p);
+        c.bar.style.height = (360 * c.h.points / max * p) + 'px';
+        if (c.h.points === leader) c.crown.style.opacity = t >= CROWN_AT ? 1 : 0;
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.__ready = true; // tells the renderer data is loaded and the timeline has started
+  });
+</script>
+</body>
+</html>

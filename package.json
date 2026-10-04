@@ -1,0 +1,11 @@
+{
+  "name": "d2m-house-points",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}

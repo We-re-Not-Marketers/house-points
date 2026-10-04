@@ -1,0 +1,87 @@
+name: Update house points
+
+on:
+  # Staff path: Actions tab -> "Update house points" -> Run workflow -> type the totals.
+  workflow_dispatch:
+    inputs:
+      label:
+        description: "Caption under the title (e.g. After Day 1)"
+        required: true
+        default: "Live standings"
+      house1:
+        description: "House One: running total"
+        required: true
+      house2:
+        description: "House Two: running total"
+        required: true
+      house3:
+        description: "House Three: running total"
+        required: true
+      house4:
+        description: "House Four: running total"
+        required: true
+  # Claude / Eric path: any push that changes the data or the animation re-renders.
+  push:
+    branches: [main]
+    paths: ["houses.json", "index.html", "assets/**"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write the new totals into houses.json
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          LABEL: ${{ inputs.label }}
+          H1: ${{ inputs.house1 }}
+          H2: ${{ inputs.house2 }}
+          H3: ${{ inputs.house3 }}
+          H4: ${{ inputs.house4 }}
+        run: |
+          for v in "$H1" "$H2" "$H3" "$H4"; do
+            [[ "$v" =~ ^[0-9]+$ ]] || { echo "::error::Totals must be whole numbers, got '$v'"; exit 1; }
+          done
+          jq --arg label "$LABEL" --argjson p "[$H1,$H2,$H3,$H4]" \
+            '.label = $label | .houses |= [range(length) as $i | .[$i] + {points: $p[$i]}]' \
+            houses.json > tmp.json && mv tmp.json houses.json
+          cat houses.json
+          git config user.name "house-points-bot"
+          git config user.email "house-points-bot@users.noreply.github.com"
+          git commit -am "Points: $LABEL ($H1 / $H2 / $H3 / $H4) by ${{ github.actor }}"
+          git push
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Render MP4
+        run: node render.mjs out/house-points.mp4
+
+      - name: Publish as a release (the "latest" link always points here)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="points-$(date -u +%Y%m%d-%H%M%S)"
+          LABEL=$(jq -r .label houses.json)
+          SUMMARY=$(jq -r '[.houses[] | "\(.name): \(.points)"] | join("  |  ")' houses.json)
+          gh release create "$TAG" out/house-points.mp4 --latest \
+            --title "$LABEL ($(date -u +'%b %d %H:%M') UTC)" \
+            --notes "$SUMMARY"
+          echo "### Done. Download: https://github.com/${{ github.repository }}/releases/latest/download/house-points.mp4" >> "$GITHUB_STEP_SUMMARY"
+          echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
