@@ -85,7 +85,10 @@
 <script>
   const $ = id => document.getElementById(id);
   const store = { get: k => { try { return localStorage.getItem(k) } catch { return null } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } };
-  let code = store.get('hp-code') || '';
+  // Code can ride in the link (?code=...) so staff never have to type it.
+  const urlCode = new URLSearchParams(location.search).get('code');
+  let code = urlCode || store.get('hp-code') || '';
+  if (urlCode) history.replaceState(null, '', location.pathname);
   let current = null;
 
   const show = id => ['gate', 'form', 'wait', 'done'].forEach(s => $(s).classList.toggle('hidden', s !== id));
