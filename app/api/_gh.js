@@ -17,7 +17,8 @@ export async function gh(path, init = {}) {
 }
 
 export function checkCode(code) {
-  return Boolean(process.env.STAFF_CODE) && String(code || '').trim().toLowerCase() === process.env.STAFF_CODE.toLowerCase();
+  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); // forgiving: "House Cup" == "housecup"
+  return Boolean(process.env.STAFF_CODE) && norm(code) === norm(process.env.STAFF_CODE);
 }
 
 export function fail(res, status, error) {
