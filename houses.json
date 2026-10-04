@@ -1,10 +1,26 @@
 {
-  "label": "After Day 1",
+  "label": "Test run",
   "durationSeconds": 10,
   "houses": [
-    { "name": "Swiftclaw", "color": "#E79CB5", "points": 120 },
-    { "name": "Muleheart", "color": "#46CFE0", "points": 95 },
-    { "name": "Roadwright", "color": "#F4F1EA", "points": 140 },
-    { "name": "Deckbane", "color": "#D9453B", "points": 80 }
+    {
+      "name": "Swiftclaw",
+      "color": "#E79CB5",
+      "points": 150
+    },
+    {
+      "name": "Muleheart",
+      "color": "#46CFE0",
+      "points": 120
+    },
+    {
+      "name": "Roadwright",
+      "color": "#F4F1EA",
+      "points": 160
+    },
+    {
+      "name": "Deckbane",
+      "color": "#D9453B",
+      "points": 95
+    }
   ]
 }
