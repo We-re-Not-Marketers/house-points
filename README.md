@@ -14,7 +14,7 @@ Every render stays in this repo's Releases with its totals, so a typo is fixed b
 
 ## How it works
 
- is the Vercel site (Vercel project , root directory ). Its API routes hold a GitHub token (env , fine-grained: this repo only, Actions write + Contents read) and trigger , which writes , renders  frame by frame to MP4, and publishes a release. Env: , , .
+`app/` is the Vercel site (Vercel project `house-points`, root directory `app`). Its API routes hold a GitHub token (env `GITHUB_TOKEN`, fine-grained: this repo only, Actions write + Contents read) and trigger `.github/workflows/render.yml`, which writes `houses.json`, renders `index.html` frame by frame to MP4, and publishes a release. Env: `GITHUB_TOKEN`, `STAFF_CODE`, `REPO`.
 
 ## Update the animation (Eric)
 
