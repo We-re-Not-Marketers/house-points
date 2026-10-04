@@ -143,7 +143,7 @@
   }
 
   $('enter').onclick = () => { code = $('code').value.trim(); $('gateErr').textContent = ''; load(); };
-  $('code').onkeydown = e => e.key === 'Enter' && $('enter').click();
+  $('code').addEventListener('keydown', e => { if (e.key === 'Enter') $('enter').click(); });
 
   $('submit').onclick = async () => {
     const points = current.houses.map((_, i) => Number($('p' + i).value));
