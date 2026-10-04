@@ -35,6 +35,8 @@ await page.goto(url, { waitUntil: 'networkidle' });
 await page.evaluate(() => document.fonts.ready);
 // Optional handshake: if the page sets window.__ready, wait for it (data fetched, timeline started).
 await page.waitForFunction(() => window.__ready !== false, null, { timeout: 10000 }).catch(() => {});
+// Every image (crests, etc.) must be decoded before frame 0.
+await page.waitForFunction(() => [...document.images].every(i => i.complete), null, { timeout: 15000 }).catch(() => {});
 
 const total = Math.round(DURATION / 1000 * FPS);
 const step = 1000 / FPS;

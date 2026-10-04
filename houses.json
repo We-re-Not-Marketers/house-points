@@ -4,22 +4,26 @@
   "houses": [
     {
       "name": "Swiftclaw",
-      "color": "#E79CB5",
+      "color": "#9A4DFF",
+      "crest": "assets/crest-swiftclaw.webp",
       "points": 185
     },
     {
       "name": "Muleheart",
-      "color": "#46CFE0",
+      "color": "#FF5324",
+      "crest": "assets/crest-muleheart.webp",
       "points": 140
     },
     {
       "name": "Roadwright",
-      "color": "#F4F1EA",
+      "color": "#22EA8E",
+      "crest": "assets/crest-roadwright.webp",
       "points": 165
     },
     {
       "name": "Deckbane",
-      "color": "#D9453B",
+      "color": "#38E3F4",
+      "crest": "assets/crest-deckbane.webp",
       "points": 120
     }
   ]

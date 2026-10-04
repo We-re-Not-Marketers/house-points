@@ -17,10 +17,11 @@
   h1 { font-family:Creepster, serif; font-weight:400; font-size:150px; letter-spacing:6px; color:var(--pink); line-height:1; }
   .label { font-size:44px; letter-spacing:8px; text-transform:uppercase; color:var(--cyan); margin-top:10px; }
   @keyframes drop { from { transform:translateY(-260px); opacity:0 } to { transform:none; opacity:1 } }
-  #chart { position:absolute; left:200px; right:200px; bottom:110px; height:560px; display:flex; gap:80px; align-items:flex-end; }
+  #chart { position:absolute; left:200px; right:200px; bottom:40px; height:700px; display:flex; gap:80px; align-items:flex-end; }
   .col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
   .pts { font-size:88px; line-height:1; margin-bottom:16px; font-variant-numeric:tabular-nums; }
   .bar { width:100%; border:6px solid var(--bone); border-bottom:none; }
+  .crest { height:230px; margin-top:14px; }
   .name { font-family:Creepster, serif; font-size:60px; margin-top:22px; text-align:center; line-height:1; }
   .crown { font-family:Creepster, serif; font-size:56px; color:var(--pink); opacity:0; height:64px; transition:none; }
   .floor { position:absolute; left:160px; right:160px; bottom:196px; border-top:6px solid var(--bone); }
@@ -43,7 +44,7 @@
       const col = document.createElement('div');
       col.className = 'col';
       col.innerHTML = `<div class="crown">Leader</div><div class="pts" style="color:${h.color}">0</div>
-        <div class="bar" style="background:${h.color};height:0"></div><div class="name" style="color:${h.color}">${h.name}</div>`;
+        <div class="bar" style="background:${h.color};height:0"></div>${h.crest ? `<img class="crest" src="${h.crest}" alt="${h.name}">` : `<div class="name" style="color:${h.color}">${h.name}</div>`}`;
       chart.appendChild(col);
       return { h, col, pts: col.querySelector('.pts'), bar: col.querySelector('.bar'), crown: col.querySelector('.crown') };
     });
@@ -53,7 +54,7 @@
       const p = ease(Math.min(Math.max((t - GROW_START) / (GROW_END - GROW_START), 0), 1));
       for (const c of cols) {
         c.pts.textContent = Math.round(c.h.points * p);
-        c.bar.style.height = (360 * c.h.points / max * p) + 'px';
+        c.bar.style.height = (300 * c.h.points / max * p) + 'px';
         if (c.h.points === leader) c.crown.style.opacity = t >= CROWN_AT ? 1 : 0;
       }
       requestAnimationFrame(frame);
