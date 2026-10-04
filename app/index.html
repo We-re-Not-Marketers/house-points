@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1A1A1A">
+<title>House Cup Update</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Creepster&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#1A1A1A; --panel:#242424; --line:#3a3a3a; --pink:#E79CB5; --cyan:#46CFE0; --bone:#F4F1EA; --muted:#a8a49c; --red:#E5675C; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--black); color:var(--bone); font:500 16px/1.4 Inter, system-ui, sans-serif; min-height:100dvh; }
+  main { max-width:480px; margin:0 auto; padding:28px 16px 48px; }
+  h1 { font:400 56px/1 Creepster, serif; color:var(--pink); text-align:center; letter-spacing:2px; }
+  .sub { text-align:center; color:var(--cyan); font:400 16px Anton, sans-serif; letter-spacing:3px; text-transform:uppercase; margin:6px 0 28px; }
+  label { display:block; font:400 14px Anton, sans-serif; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  input { width:100%; background:var(--panel); color:var(--bone); border:2px solid var(--line); border-radius:10px; padding:14px; font:700 20px Inter, sans-serif; }
+  input:focus { outline:none; border-color:var(--cyan); }
+  .house { background:var(--panel); border:2px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+  .house-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .house-name { font:400 30px/1 Creepster, serif; }
+  .was { color:var(--muted); font-size:14px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  .row input { text-align:center; font-size:28px; padding:10px; background:var(--black); }
+  .step { flex:0 0 56px; height:56px; border-radius:10px; border:2px solid var(--line); background:var(--black); color:var(--bone); font:700 15px Inter, sans-serif; }
+  .step:active { background:var(--line); }
+  .delta { font-size:14px; height:18px; margin-top:6px; text-align:center; color:var(--cyan); }
+  button.go { width:100%; margin-top:18px; padding:18px; border:0; border-radius:12px; background:var(--pink); color:var(--black); font:400 26px Anton, sans-serif; letter-spacing:2px; text-transform:uppercase; }
+  button.go:disabled { opacity:.45; }
+  button.ghost { width:100%; margin-top:10px; padding:14px; border:2px solid var(--line); border-radius:12px; background:none; color:var(--bone); font:700 16px Inter, sans-serif; }
+  .err { color:var(--red); margin-top:12px; text-align:center; min-height:20px; }
+  .card { background:var(--panel); border:2px solid var(--line); border-radius:14px; padding:18px; text-align:center; }
+  .stage { font:400 22px Anton, sans-serif; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); margin:12px 0 4px; }
+  .bar { height:8px; background:var(--black); border-radius:4px; overflow:hidden; margin:14px 0 6px; }
+  .bar i { display:block; height:100%; width:0; background:var(--pink); transition:width 1s linear; }
+  video { width:100%; border-radius:10px; background:#000; display:block; margin-bottom:12px; }
+  a.go { display:block; text-decoration:none; text-align:center; }
+  .small { color:var(--muted); font-size:14px; margin-top:8px; }
+  .hidden { display:none !important; }
+  .latest { margin-top:28px; padding-top:20px; border-top:2px solid var(--line); }
+  .latest summary { font:400 16px Anton, sans-serif; letter-spacing:2px; text-transform:uppercase; color:var(--muted); cursor:pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>House Cup</h1>
+  <div class="sub">Points update</div>
+
+  <!-- 1. Staff code -->
+  <section id="gate">
+    <label for="code">Staff code</label>
+    <input id="code" autocomplete="off" autocapitalize="off" placeholder="Ask Eric or Gab">
+    <button class="go" id="enter">Enter</button>
+    <div class="err" id="gateErr"></div>
+  </section>
+
+  <!-- 2. Form -->
+  <section id="form" class="hidden">
+    <label for="label">Caption on the video</label>
+    <input id="label" maxlength="40" placeholder="After Day 1">
+    <div style="height:16px"></div>
+    <div id="houses"></div>
+    <button class="go" id="submit">Make the video</button>
+    <div class="err" id="formErr"></div>
+    <details class="latest" id="latestBox"><summary>Latest video</summary><div id="latestSlot" style="margin-top:14px"></div></details>
+  </section>
+
+  <!-- 3. Rendering -->
+  <section id="wait" class="hidden">
+    <div class="card">
+      <div class="stage" id="stage">Queued</div>
+      <div class="bar"><i id="progress"></i></div>
+      <div class="small">Takes about 3 minutes. Keep this page open.</div>
+    </div>
+  </section>
+
+  <!-- 4. Done -->
+  <section id="done" class="hidden">
+    <div id="doneSlot"></div>
+    <button class="ghost" id="again">Update again</button>
+  </section>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get: k => { try { return localStorage.getItem(k) } catch { return null } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } };
+  let code = store.get('hp-code') || '';
+  let current = null;
+
+  const show = id => ['gate', 'form', 'wait', 'done'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+  const api = async (path, opts) => {
+    const r = await fetch(path, opts);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(j.error || 'Something broke'), { status: r.status });
+    return j;
+  };
+
+  function videoBlock(v) {
+    const src = `/api/video?tag=${v.tag}`;
+    const link = location.origin + src;
+    return `<video src="${src}" controls playsinline muted autoplay loop></video>
+      <a class="go" href="${src}&dl=1">Download MP4</a>
+      <button class="ghost" onclick="navigator.clipboard.writeText('${link}').then(()=>this.textContent='Link copied')">Copy video link</button>
+      <div class="small">${v.title}<br>${(v.notes || '').replaceAll('|', '·')}</div>`;
+  }
+
+  async function load() {
+    try {
+      current = await api(`/api/state?code=${encodeURIComponent(code)}`);
+    } catch (e) {
+      show('gate');
+      $('gateErr').textContent = e.status === 401 ? 'That code did not work' : e.message;
+      return;
+    }
+    store.set('hp-code', code);
+    $('houses').innerHTML = current.houses.map((h, i) => `
+      <div class="house">
+        <div class="house-top"><span class="house-name" style="color:${h.color}">${h.name}</span><span class="was">now ${h.points}</span></div>
+        <div class="row">
+          <button class="step" data-i="${i}" data-d="-5">-5</button>
+          <input id="p${i}" type="number" inputmode="numeric" min="0" value="${h.points}">
+          <button class="step" data-i="${i}" data-d="5">+5</button>
+        </div>
+        <div class="delta" id="d${i}"></div>
+      </div>`).join('');
+    current.houses.forEach((h, i) => $('p' + i).addEventListener('input', () => delta(i)));
+    document.querySelectorAll('.step').forEach(b => b.onclick = () => {
+      const el = $('p' + b.dataset.i); el.value = Math.max(0, (+el.value || 0) + +b.dataset.d); delta(+b.dataset.i);
+    });
+    show('form');
+    api(`/api/status?code=${encodeURIComponent(code)}&since=2999-01-01`).then(s => {
+      if (s.latest) $('latestSlot').innerHTML = videoBlock(s.latest); else $('latestBox').classList.add('hidden');
+    }).catch(() => $('latestBox').classList.add('hidden'));
+  }
+
+  function delta(i) {
+    const d = (+$('p' + i).value || 0) - current.houses[i].points;
+    $('d' + i).textContent = d ? (d > 0 ? `+${d}` : d) + ' from now' : '';
+  }
+
+  $('enter').onclick = () => { code = $('code').value.trim(); $('gateErr').textContent = ''; load(); };
+  $('code').onkeydown = e => e.key === 'Enter' && $('enter').click();
+
+  $('submit').onclick = async () => {
+    const points = current.houses.map((_, i) => Number($('p' + i).value));
+    if (points.some(p => !Number.isInteger(p) || p < 0)) return ($('formErr').textContent = 'Whole numbers only, no negatives');
+    const summary = current.houses.map((h, i) => `${h.name}: ${points[i]}`).join('\n');
+    if (!confirm(`Make the video with these running totals?\n\n${summary}`)) return;
+    $('submit').disabled = true; $('formErr').textContent = '';
+    try {
+      const { startedAt } = await api('/api/update', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ code, label: $('label').value, points }) });
+      show('wait'); poll(startedAt, Date.now());
+    } catch (e) { $('formErr').textContent = e.message; }
+    $('submit').disabled = false;
+  };
+
+  async function poll(since, t0) {
+    const pct = Math.min(95, (Date.now() - t0) / 1800); // ~3 min to 95%
+    $('progress').style.width = pct + '%';
+    try {
+      const s = await api(`/api/status?code=${encodeURIComponent(code)}&since=${since}`);
+      if (s.state === 'done') { $('progress').style.width = '100%'; $('doneSlot').innerHTML = videoBlock(s.video); return show('done'); }
+      if (s.state === 'failed') { $('stage').textContent = 'Render failed. Tell Gab.'; return; }
+      $('stage').textContent = s.state === 'queued' ? 'Queued' : 'Rendering';
+    } catch {}
+    if (Date.now() - t0 > 10 * 60 * 1000) { $('stage').textContent = 'Taking too long. Tell Gab.'; return; }
+    setTimeout(() => poll(since, t0), 8000);
+  }
+
+  $('again').onclick = () => load();
+  if (code) load(); else show('gate');
+</script>
+</body>
+</html>
