@@ -4,13 +4,17 @@ Update the house totals, get a fresh 16:9 MP4 for the room screen. About 3 minut
 
 ## Update the points (event staff)
 
-1. Open this repo on GitHub, click the **Actions** tab.
-2. Click **Update house points** in the left list, then **Run workflow** (right side).
-3. Type the caption (e.g. `After Day 1`) and the **running total** for each house. Whole numbers only.
-4. Click the green **Run workflow** button. Wait for the green check (about 3 min).
-5. Download the video: **https://github.com/We-re-Not-Marketers/house-points/releases/latest/download/house-points.mp4**
+Staff only ever use **https://house-points-mu.vercel.app** (works on a phone). Staff code: ask Eric or Gab.
 
-That link always serves the newest render. Every past render stays in **Releases**, with the totals in its notes, so a mistake is easy to spot and redo: just run it again with the right numbers.
+1. Enter the staff code (remembered on that phone after the first time).
+2. The current totals are pre-filled. Change them (type, or use the -5 / +5 buttons), add a caption, press **Make the video**.
+3. Keep the page open about 3 minutes. The video appears with **Download MP4** and **Copy video link**.
+
+Every render stays in this repo's Releases with its totals, so a typo is fixed by submitting again with the right numbers.
+
+## How it works
+
+ is the Vercel site (Vercel project , root directory ). Its API routes hold a GitHub token (env , fine-grained: this repo only, Actions write + Contents read) and trigger , which writes , renders  frame by frame to MP4, and publishes a release. Env: , , .
 
 ## Update the animation (Eric)
 
