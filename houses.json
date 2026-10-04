@@ -1,26 +1,26 @@
 {
-  "label": "Form test",
+  "label": "Live standings",
   "durationSeconds": 10,
   "houses": [
     {
       "name": "Swiftclaw",
       "color": "#E79CB5",
-      "points": 175
+      "points": 185
     },
     {
       "name": "Muleheart",
       "color": "#46CFE0",
-      "points": 130
+      "points": 140
     },
     {
       "name": "Roadwright",
       "color": "#F4F1EA",
-      "points": 160
+      "points": 165
     },
     {
       "name": "Deckbane",
       "color": "#D9453B",
-      "points": 110
+      "points": 120
     }
   ]
 }
