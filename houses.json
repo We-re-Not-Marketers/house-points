@@ -1,16 +1,16 @@
 {
-  "label": "Test run",
+  "label": "Form test",
   "durationSeconds": 10,
   "houses": [
     {
       "name": "Swiftclaw",
       "color": "#E79CB5",
-      "points": 150
+      "points": 175
     },
     {
       "name": "Muleheart",
       "color": "#46CFE0",
-      "points": 120
+      "points": 130
     },
     {
       "name": "Roadwright",
@@ -20,7 +20,7 @@
     {
       "name": "Deckbane",
       "color": "#D9453B",
-      "points": 95
+      "points": 110
     }
   ]
 }
