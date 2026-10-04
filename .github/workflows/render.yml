@@ -8,17 +8,17 @@ on:
         description: "Caption under the title (e.g. After Day 1)"
         required: true
         default: "Live standings"
-      house1:
-        description: "House One: running total"
+      swiftclaw:
+        description: "Swiftclaw: running total"
         required: true
-      house2:
-        description: "House Two: running total"
+      muleheart:
+        description: "Muleheart: running total"
         required: true
-      house3:
-        description: "House Three: running total"
+      roadwright:
+        description: "Roadwright: running total"
         required: true
-      house4:
-        description: "House Four: running total"
+      deckbane:
+        description: "Deckbane: running total"
         required: true
   # Claude / Eric path: any push that changes the data or the animation re-renders.
   push:
@@ -42,10 +42,10 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         env:
           LABEL: ${{ inputs.label }}
-          H1: ${{ inputs.house1 }}
-          H2: ${{ inputs.house2 }}
-          H3: ${{ inputs.house3 }}
-          H4: ${{ inputs.house4 }}
+          H1: ${{ inputs.swiftclaw }}
+          H2: ${{ inputs.muleheart }}
+          H3: ${{ inputs.roadwright }}
+          H4: ${{ inputs.deckbane }}
         run: |
           for v in "$H1" "$H2" "$H3" "$H4"; do
             [[ "$v" =~ ^[0-9]+$ ]] || { echo "::error::Totals must be whole numbers, got '$v'"; exit 1; }

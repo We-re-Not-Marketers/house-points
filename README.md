@@ -8,7 +8,7 @@ Update the house totals, get a fresh 16:9 MP4 for the room screen. About 3 minut
 2. Click **Update house points** in the left list, then **Run workflow** (right side).
 3. Type the caption (e.g. `After Day 1`) and the **running total** for each house. Whole numbers only.
 4. Click the green **Run workflow** button. Wait for the green check (about 3 min).
-5. Download the video: **https://github.com/OWNER/REPO/releases/latest/download/house-points.mp4**
+5. Download the video: **https://github.com/We-re-Not-Marketers/house-points/releases/latest/download/house-points.mp4**
 
 That link always serves the newest render. Every past render stays in **Releases**, with the totals in its notes, so a mistake is easy to spot and redo: just run it again with the right numbers.
 
