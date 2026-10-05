@@ -56,8 +56,13 @@ jobs:
           cat houses.json
           git config user.name "house-points-bot"
           git config user.email "house-points-bot@users.noreply.github.com"
-          git commit -am "Points: $LABEL ($H1 / $H2 / $H3 / $H4) by ${{ github.actor }}"
-          git push
+          # Same totals resubmitted = nothing to commit. Still render, never fail.
+          if git diff --quiet; then
+            echo "Totals unchanged, re-rendering as-is."
+          else
+            git commit -am "Points: $LABEL ($H1 / $H2 / $H3 / $H4) by ${{ github.actor }}"
+            git push
+          fi
 
       - uses: actions/setup-node@v4
         with:
